@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, Pause, RotateCcw, Volume2 } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Volume2, Award, Clock, Target, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -27,8 +27,8 @@ const TypingInterface = () => {
   // Sample lyrics (in a real app, this would come from an API)
   const sampleLyrics = "Is this the real life? Is this just fantasy? Caught in a landslide, no escape from reality. Open your eyes, look up to the skies and see. I'm just a poor boy, I need no sympathy. Because I'm easy come, easy go, little high, little low. Any way the wind blows doesn't really matter to me, to me.";
   
-  // Sample YouTube video ID (in a real app, this would come from the song data)
-  const youtubeVideoId = "fJ9rUzIMcZQ"; // Bohemian Rhapsody
+  // Use the video ID from the song data, fallback to Bohemian Rhapsody
+  const youtubeVideoId = song?.videoId || "fJ9rUzIMcZQ";
 
   useEffect(() => {
     if (isPlaying) {
@@ -108,9 +108,9 @@ const TypingInterface = () => {
   };
 
   const getCharClassName = (index: number) => {
-    if (index < currentCharIndex) return 'text-green-400 bg-green-400/20';
-    if (index === currentCharIndex) return 'text-yellow-400 bg-yellow-400/20 animate-pulse';
-    return 'text-white/40';
+    if (index < currentCharIndex) return 'text-green-400 bg-green-400/20 shadow-sm';
+    if (index === currentCharIndex) return 'text-yellow-400 bg-yellow-400/30 animate-pulse shadow-lg';
+    return 'text-white/50';
   };
 
   const formatTime = (seconds: number) => {
@@ -134,41 +134,50 @@ const TypingInterface = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
       {/* Header */}
-      <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
+      <div className="relative z-10 bg-black/30 backdrop-blur-md border-b border-white/20">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/')}
-                className="text-white hover:bg-white/10"
+                onClick={() => navigate('/dashboard')}
+                className="text-white hover:bg-white/10 backdrop-blur-sm"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Dashboard
               </Button>
-              <div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
                 <h1 className="text-xl font-bold text-white">{song.title}</h1>
                 <p className="text-white/70">{song.artist}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 bg-white/10 backdrop-blur-sm rounded-lg p-3">
               <Volume2 className="w-5 h-5 text-white/70" />
-              <span className="text-white/70">{formatTime(timeElapsed)}</span>
+              <span className="text-white font-mono">{formatTime(timeElapsed)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
-        {/* Progress Bar */}
+      <div className="relative z-10 container mx-auto px-6 py-8">
+        {/* Progress Section */}
         <div className="mb-8">
-          <Progress value={progress} className="h-2 bg-white/20" />
-          <div className="flex justify-between text-sm text-white/70 mt-2">
-            <span>{Math.round(progress)}% Complete</span>
-            <span>{currentCharIndex} / {sampleLyrics.length} characters</span>
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+            <Progress value={progress} className="h-3 bg-white/20 mb-4" />
+            <div className="flex justify-between text-sm text-white/80">
+              <span className="font-semibold">{Math.round(progress)}% Complete</span>
+              <span className="font-mono">{currentCharIndex} / {sampleLyrics.length} characters</span>
+            </div>
           </div>
         </div>
 
@@ -176,7 +185,7 @@ const TypingInterface = () => {
         <div className="flex justify-center space-x-4 mb-8">
           <Button
             onClick={togglePlayPause}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300"
             size="lg"
           >
             {isPlaying ? <Pause className="w-5 h-5 mr-2" /> : <Play className="w-5 h-5 mr-2" />}
@@ -187,7 +196,7 @@ const TypingInterface = () => {
             onClick={resetTyping}
             variant="outline"
             size="lg"
-            className="border-white/20 text-white hover:bg-white/10"
+            className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <RotateCcw className="w-5 h-5 mr-2" />
             Reset
@@ -196,12 +205,15 @@ const TypingInterface = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* YouTube Video */}
-          <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+          <Card className="bg-white/10 border-white/20 backdrop-blur-md shadow-2xl hover:shadow-3xl transition-all duration-300">
             <CardHeader>
-              <CardTitle className="text-white">Now Playing</CardTitle>
+              <CardTitle className="text-white flex items-center">
+                <Play className="w-5 h-5 mr-2" />
+                Now Playing
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video rounded-lg overflow-hidden">
+              <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
                 <iframe
                   width="100%"
                   height="100%"
@@ -218,25 +230,37 @@ const TypingInterface = () => {
 
           {/* Analytics - Only show when completed */}
           {isCompleted ? (
-            <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+            <Card className="bg-gradient-to-br from-green-500/20 to-blue-500/20 border-green-400/30 backdrop-blur-md shadow-2xl">
               <CardHeader>
-                <CardTitle className="text-white">Final Results</CardTitle>
+                <CardTitle className="text-white flex items-center">
+                  <Award className="w-6 h-6 mr-2 text-yellow-400" />
+                  Congratulations! 🎉
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-400">{wpm}</div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center bg-white/10 rounded-xl p-4">
+                    <div className="text-3xl font-bold text-green-400 flex items-center justify-center">
+                      <Zap className="w-8 h-8 mr-2" />
+                      {wpm}
+                    </div>
                     <div className="text-white/70">WPM</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-400">{accuracy}%</div>
+                  <div className="text-center bg-white/10 rounded-xl p-4">
+                    <div className="text-3xl font-bold text-blue-400 flex items-center justify-center">
+                      <Target className="w-8 h-8 mr-2" />
+                      {accuracy}%
+                    </div>
                     <div className="text-white/70">Accuracy</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-400">{formatTime(timeElapsed)}</div>
+                  <div className="text-center bg-white/10 rounded-xl p-4">
+                    <div className="text-3xl font-bold text-purple-400 flex items-center justify-center">
+                      <Clock className="w-8 h-8 mr-2" />
+                      {formatTime(timeElapsed)}
+                    </div>
                     <div className="text-white/70">Time</div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center bg-white/10 rounded-xl p-4">
                     <div className="text-3xl font-bold text-red-400">{errors}</div>
                     <div className="text-white/70">Errors</div>
                   </div>
@@ -244,7 +268,7 @@ const TypingInterface = () => {
                 <div className="mt-6 text-center">
                   <Button
                     onClick={resetTyping}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     Try Again
                   </Button>
@@ -252,17 +276,20 @@ const TypingInterface = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+            <Card className="bg-white/10 border-white/20 backdrop-blur-md shadow-2xl">
               <CardHeader>
-                <CardTitle className="text-white">Live Stats</CardTitle>
+                <CardTitle className="text-white flex items-center">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Live Stats
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
                     <div className="text-2xl font-bold text-white">{wpm}</div>
                     <div className="text-white/70">WPM</div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
                     <div className="text-2xl font-bold text-white">{accuracy}%</div>
                     <div className="text-white/70">Accuracy</div>
                   </div>
@@ -273,14 +300,14 @@ const TypingInterface = () => {
         </div>
 
         {/* Lyrics Display */}
-        <Card className="bg-white/10 border-white/20 backdrop-blur-sm mt-8 mb-6">
+        <Card className="bg-white/10 border-white/20 backdrop-blur-md mt-8 mb-6 shadow-2xl">
           <CardHeader>
             <CardTitle className="text-white">Lyrics</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-lg leading-relaxed mb-6 font-mono">
+            <div className="text-lg leading-relaxed mb-6 font-mono bg-black/20 rounded-xl p-6 border border-white/10">
               {sampleLyrics.split('').map((char, index) => (
-                <span key={index} className={`${getCharClassName(index)} transition-all duration-200`}>
+                <span key={index} className={`${getCharClassName(index)} transition-all duration-200 px-0.5 py-0.5 rounded`}>
                   {char}
                 </span>
               ))}
@@ -289,7 +316,7 @@ const TypingInterface = () => {
         </Card>
 
         {/* Typing Input */}
-        <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+        <Card className="bg-white/10 border-white/20 backdrop-blur-md shadow-2xl">
           <CardHeader>
             <CardTitle className="text-white">Type Here</CardTitle>
           </CardHeader>
@@ -300,16 +327,16 @@ const TypingInterface = () => {
                 type="text"
                 value={typedText}
                 onChange={handleInputChange}
-                className="w-full p-4 text-lg bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono"
+                className="w-full p-6 text-lg bg-black/20 border border-white/30 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono backdrop-blur-sm shadow-inner transition-all duration-300"
                 placeholder="Start typing the lyrics..."
                 disabled={!isPlaying || isCompleted}
               />
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-white/60 bg-white/5 rounded-lg p-3 border border-white/10">
                 {isCompleted 
-                  ? 'Congratulations! You completed the song!' 
+                  ? '🎉 Congratulations! You completed the song!' 
                   : isPlaying 
-                    ? 'Type character by character. Keep going!' 
-                    : 'Press Play to start.'}
+                    ? '⚡ Type character by character. Keep going!' 
+                    : '▶️ Press Play to start.'}
               </p>
             </div>
           </CardContent>

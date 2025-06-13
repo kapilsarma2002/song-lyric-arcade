@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Search, Music, Headphones, Play } from 'lucide-react';
+import { Search, Music, Headphones, Play, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const genres = [
@@ -28,7 +30,8 @@ const Dashboard = () => {
       genre: "Rock",
       difficulty: "Hard",
       duration: "5:55",
-      thumbnail: "/placeholder.svg"
+      thumbnail: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
+      videoId: "fJ9rUzIMcZQ"
     },
     {
       id: 2,
@@ -37,7 +40,8 @@ const Dashboard = () => {
       genre: "Pop",
       difficulty: "Easy",
       duration: "3:03",
-      thumbnail: "/placeholder.svg"
+      thumbnail: "https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop",
+      videoId: "YkgkThdzX-8"
     },
     {
       id: 3,
@@ -46,7 +50,8 @@ const Dashboard = () => {
       genre: "Rock",
       difficulty: "Medium",
       duration: "6:30",
-      thumbnail: "/placeholder.svg"
+      thumbnail: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=300&fit=crop",
+      videoId: "BciS5krYL80"
     },
     {
       id: 4,
@@ -55,9 +60,53 @@ const Dashboard = () => {
       genre: "Pop",
       difficulty: "Medium",
       duration: "4:54",
-      thumbnail: "/placeholder.svg"
+      thumbnail: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
+      videoId: "Zi_XLOBDo_Y"
     }
   ];
+
+  const searchYouTube = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsLoading(true);
+    
+    // Simulated YouTube search results (in a real app, you'd use the YouTube API)
+    const mockResults = [
+      {
+        id: `search-${Date.now()}-1`,
+        title: `${query} - Official Music Video`,
+        artist: "Artist Name",
+        genre: "Pop",
+        difficulty: "Medium",
+        duration: "3:45",
+        thumbnail: `https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&q=80`,
+        videoId: "dQw4w9WgXcQ"
+      },
+      {
+        id: `search-${Date.now()}-2`,
+        title: `${query} (Lyrics)`,
+        artist: "Various Artists",
+        genre: "Pop",
+        difficulty: "Easy",
+        duration: "4:12",
+        thumbnail: `https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop&q=80`,
+        videoId: "dQw4w9WgXcQ"
+      }
+    ];
+
+    setTimeout(() => {
+      setSearchResults(mockResults);
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    searchYouTube(searchQuery);
+  };
 
   const handleSongSelect = (song: any) => {
     navigate(`/typing/${song.id}`, { state: { song } });
@@ -71,6 +120,8 @@ const Dashboard = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const displaySongs = searchResults.length > 0 ? searchResults : featuredSongs;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -102,7 +153,7 @@ const Dashboard = () => {
             Improve your typing skills while enjoying your favorite songs
           </p>
           
-          <div className="max-w-md mx-auto relative">
+          <form onSubmit={handleSearch} className="max-w-md mx-auto relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               type="text"
@@ -111,7 +162,10 @@ const Dashboard = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 backdrop-blur-sm"
             />
-          </div>
+            {isLoading && (
+              <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 w-5 h-5 animate-spin" />
+            )}
+          </form>
         </div>
 
         {/* Genre Selection */}
@@ -119,7 +173,7 @@ const Dashboard = () => {
           <h3 className="text-2xl font-bold text-white mb-6">Choose Your Genre</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {genres.map((genre) => (
-              <Card key={genre.name} className="bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer backdrop-blur-sm">
+              <Card key={genre.name} className="bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer backdrop-blur-sm hover:scale-105">
                 <CardContent className="p-6 text-center">
                   <div className={`w-12 h-12 ${genre.color} rounded-full flex items-center justify-center mx-auto mb-3`}>
                     <span className="text-2xl">{genre.icon}</span>
@@ -131,48 +185,58 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Featured Songs */}
+        {/* Songs Section */}
         <div>
-          <h3 className="text-2xl font-bold text-white mb-6">Featured Songs</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredSongs.map((song) => (
-              <Card key={song.id} className="bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer backdrop-blur-sm group">
-                <CardHeader className="pb-3">
-                  <div className="relative mb-4">
-                    <img 
-                      src={song.thumbnail} 
-                      alt={song.title}
-                      className="w-full h-40 object-cover rounded-lg"
-                    />
-                    <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Button
-                        onClick={() => handleSongSelect(song)}
-                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm"
-                      >
-                        <Play className="w-5 h-5 mr-2" />
-                        Start Typing
-                      </Button>
+          <h3 className="text-2xl font-bold text-white mb-6">
+            {searchResults.length > 0 ? 'Search Results' : 'Featured Songs'}
+          </h3>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="w-8 h-8 text-white animate-spin" />
+              <span className="ml-2 text-white">Searching...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {displaySongs.map((song) => (
+                <Card key={song.id} className="bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer backdrop-blur-sm group hover:scale-105">
+                  <CardHeader className="pb-3">
+                    <div className="relative mb-4 overflow-hidden rounded-lg">
+                      <img 
+                        src={song.thumbnail} 
+                        alt={song.title}
+                        className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Button
+                          onClick={() => handleSongSelect(song)}
+                          className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/20"
+                        >
+                          <Play className="w-5 h-5 mr-2" />
+                          Start Typing
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle className="text-white text-lg">{song.title}</CardTitle>
-                  <CardDescription className="text-white/70">{song.artist}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex space-x-2">
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                        {song.genre}
-                      </Badge>
-                      <Badge variant="secondary" className={getDifficultyColor(song.difficulty)}>
-                        {song.difficulty}
-                      </Badge>
+                    <CardTitle className="text-white text-lg line-clamp-1">{song.title}</CardTitle>
+                    <CardDescription className="text-white/70">{song.artist}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="flex space-x-2">
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                          {song.genre}
+                        </Badge>
+                        <Badge variant="secondary" className={getDifficultyColor(song.difficulty)}>
+                          {song.difficulty}
+                        </Badge>
+                      </div>
+                      <span className="text-white/60 text-sm">{song.duration}</span>
                     </div>
-                    <span className="text-white/60 text-sm">{song.duration}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
