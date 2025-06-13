@@ -31,7 +31,8 @@ const Dashboard = () => {
       difficulty: "Hard",
       duration: "5:55",
       thumbnail: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
-      videoId: "fJ9rUzIMcZQ"
+      videoId: "fJ9rUzIMcZQ",
+      lyrics: "Is this the real life? Is this just fantasy? Caught in a landslide, no escape from reality. Open your eyes, look up to the skies and see. I'm just a poor boy, I need no sympathy. Because I'm easy come, easy go, little high, little low. Any way the wind blows doesn't really matter to me, to me."
     },
     {
       id: 2,
@@ -41,7 +42,8 @@ const Dashboard = () => {
       difficulty: "Easy",
       duration: "3:03",
       thumbnail: "https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop",
-      videoId: "YkgkThdzX-8"
+      videoId: "YkgkThdzX-8",
+      lyrics: "Imagine there's no heaven, it's easy if you try. No hell below us, above us only sky.Imagine all the people living for today."
     },
     {
       id: 3,
@@ -51,7 +53,8 @@ const Dashboard = () => {
       difficulty: "Medium",
       duration: "6:30",
       thumbnail: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=300&fit=crop",
-      videoId: "BciS5krYL80"
+      videoId: "BciS5krYL80",
+      lyrics: "On a dark desert highway, cool wind in my hair. Warm smell of colitas, rising up through the air. Up ahead in the distance, I saw a shimmering light. My head grew heavy and my sight grew dim, I had to stop for the night."
     },
     {
       id: 4,
@@ -61,7 +64,8 @@ const Dashboard = () => {
       difficulty: "Medium",
       duration: "4:54",
       thumbnail: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
-      videoId: "Zi_XLOBDo_Y"
+      videoId: "Zi_XLOBDo_Y",
+      lyrics: "She was more like a beauty queen from a movie scene. I said don't mind, but what do you mean, I am the one. Who will dance on the floor in the round. She said I am the one, who will dance on the floor in the round."
     }
   ];
 
@@ -72,52 +76,87 @@ const Dashboard = () => {
     }
 
     setIsLoading(true);
-    
-    // Simulated YouTube search results (in a real app, you'd use the YouTube API)
-    const mockResults = [
-      {
-        id: `search-${Date.now()}-1`,
-        title: `${query} - Official Music Video`,
-        artist: "Artist Name",
-        genre: "Pop",
-        difficulty: "Medium",
-        duration: "3:45",
-        thumbnail: `https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&q=80`,
-        videoId: "dQw4w9WgXcQ"
-      },
-      {
-        id: `search-${Date.now()}-2`,
-        title: `${query} (Lyrics)`,
-        artist: "Various Artists",
-        genre: "Pop",
-        difficulty: "Easy",
-        duration: "4:12",
-        thumbnail: `https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop&q=80`,
-        videoId: "dQw4w9WgXcQ"
-      }
-    ];
 
-    setTimeout(() => {
-      setSearchResults(mockResults);
+    try {
+      // In a real app, you would make an API call to YouTube Data API v3
+      // For now, using an expanded mock response with more videos
+      const mockResults = [
+        {
+          id: `search-${Date.now()}-1`,
+          title: `${query} - Official Music Video`,
+          artist: "Various Artists",
+          genre: "Pop",
+          difficulty: "Medium",
+          duration: "3:45",
+          thumbnail: `https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&q=80`,
+          videoId: "dQw4w9WgXcQ",
+          lyrics: "Never gonna give you up, never gonna let you down. Never gonna run around and desert you. Never gonna make you cry, never gonna say goodbye. Never gonna tell a lie and hurt you."
+        },
+        {
+          id: `search-${Date.now()}-2`,
+          title: `${query} (Lyrics)`,
+          artist: "Lyric Channel",
+          genre: "Pop",
+          difficulty: "Easy",
+          duration: "4:12",
+          thumbnail: `https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop&q=80`,
+          videoId: "L_jWHffIx5E",
+          lyrics: "Somebody once told me the world is gonna roll me. I ain't the sharpest tool in the shed. She was looking kind of dumb with her finger and her thumb in the shape of an 'L' on her forehead."
+        },
+        {
+          id: `search-${Date.now()}-3`,
+          title: `${query} - Live Performance`,
+          artist: "Live Music",
+          genre: "Rock",
+          difficulty: "Medium",
+          duration: "5:20",
+          thumbnail: `https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=300&fit=crop&q=80`,
+          videoId: "kJQP7kiw5Fk",
+          lyrics: "Despacito, Quiero respirar tu cuello despacito. Deja que te diga cosas al oído. Para que te acuerdes si no estás conmigo."
+        },
+        {
+          id: `search-${Date.now()}-4`,
+          title: `${query} - Cover Version`,
+          artist: "Cover Artist",
+          genre: "Pop",
+          difficulty: "Hard",
+          duration: "3:30",
+          thumbnail: `https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop&q=80`,
+          videoId: "9bZkp7q19f0",
+          lyrics: "Oppa Gangnam Style, Gangnam Style. Najeneun danshin naja ittaegeuriya. Keopi sikgido jeone one-shot deo hage. Yeoreum boda deo deoun one-shot."
+        },
+        {
+          id: `search-${Date.now()}-5`,
+          title: `${query} - Acoustic Version`,
+          artist: "Acoustic Channel",
+          genre: "Folk",
+          difficulty: "Easy",
+          duration: "4:05",
+          thumbnail: `https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&q=80`,
+          videoId: "JGwWNGJdvx8",
+          lyrics: "I'm in love with the shape of you. We push and pull like a magnet do. Although my heart is falling too. I'm in love with your body."
+        },
+        {
+          id: `search-${Date.now()}-6`,
+          title: `${query} - Remix`,
+          artist: "DJ Remix",
+          genre: "Electronic",
+          difficulty: "Medium",
+          duration: "6:15",
+          thumbnail: `https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop&q=80`,
+          videoId: "y6120QOlsfU",
+          lyrics: "Darude - Sandstorm instrumental"
+        }
+      ];
+
+      // Simulate API call delay
+      setTimeout(() => {
+        setSearchResults(mockResults);
+        setIsLoading(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Error fetching YouTube data:", error);
       setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    searchYouTube(searchQuery);
-  };
-
-  const handleSongSelect = (song: any) => {
-    navigate(`/typing/${song.id}`, { state: { song } });
-  };
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Easy': return 'bg-green-100 text-green-800';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800';
-      case 'Hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
     }
   };
 

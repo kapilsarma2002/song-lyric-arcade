@@ -24,11 +24,11 @@ const TypingInterface = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<number>();
 
-  // Sample lyrics (in a real app, this would come from an API)
-  const sampleLyrics = "Is this the real life? Is this just fantasy? Caught in a landslide, no escape from reality. Open your eyes, look up to the skies and see. I'm just a poor boy, I need no sympathy. Because I'm easy come, easy go, little high, little low. Any way the wind blows doesn't really matter to me, to me.";
+  // Get lyrics from the song data, or use a default if not available
+  const lyrics = song?.lyrics || "No lyrics available for this song. Please choose another song.";
   
-  // Use the video ID from the song data, fallback to Bohemian Rhapsody
-  const youtubeVideoId = song?.videoId || "fJ9rUzIMcZQ";
+  // Use the video ID from the song data, fallback to a default
+  const youtubeVideoId = song?.videoId || "dQw4w9WgXcQ";
 
   useEffect(() => {
     if (isPlaying) {
@@ -50,7 +50,7 @@ const TypingInterface = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const currentChar = sampleLyrics[currentCharIndex];
+    const currentChar = lyrics[currentCharIndex];
     const typedChar = value[value.length - 1];
 
     if (value.length > typedText.length) {
@@ -61,7 +61,7 @@ const TypingInterface = () => {
         setTypedText(value);
         
         // Check if completed
-        if (currentCharIndex + 1 >= sampleLyrics.length) {
+        if (currentCharIndex + 1 >= lyrics.length) {
           setIsCompleted(true);
           setIsPlaying(false);
         }
@@ -78,7 +78,7 @@ const TypingInterface = () => {
     }
 
     // Calculate progress
-    const newProgress = ((currentCharIndex + 1) / sampleLyrics.length) * 100;
+    const newProgress = ((currentCharIndex + 1) / lyrics.length) * 100;
     setProgress(newProgress);
     
     // Calculate WPM (assuming average word length of 5 characters)
@@ -176,7 +176,7 @@ const TypingInterface = () => {
             <Progress value={progress} className="h-3 bg-white/20 mb-4" />
             <div className="flex justify-between text-sm text-white/80">
               <span className="font-semibold">{Math.round(progress)}% Complete</span>
-              <span className="font-mono">{currentCharIndex} / {sampleLyrics.length} characters</span>
+              <span className="font-mono">{currentCharIndex} / {lyrics.length} characters</span>
             </div>
           </div>
         </div>
@@ -228,8 +228,32 @@ const TypingInterface = () => {
             </CardContent>
           </Card>
 
-          {/* Analytics - Only show when completed */}
-          {isCompleted ? (
+          {/* Show YouTube video in both spots when not completed */}
+          {!isCompleted && (
+            <Card className="bg-white/10 border-white/20 backdrop-blur-md shadow-2xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Live Stats
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="text-2xl font-bold text-white">{wpm}</div>
+                    <div className="text-white/70">WPM</div>
+                  </div>
+                  <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="text-2xl font-bold text-white">{accuracy}%</div>
+                    <div className="text-white/70">Accuracy</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Show Analytics only when completed */}
+          {isCompleted && (
             <Card className="bg-gradient-to-br from-green-500/20 to-blue-500/20 border-green-400/30 backdrop-blur-md shadow-2xl">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
@@ -275,27 +299,6 @@ const TypingInterface = () => {
                 </div>
               </CardContent>
             </Card>
-          ) : (
-            <Card className="bg-white/10 border-white/20 backdrop-blur-md shadow-2xl">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Zap className="w-5 h-5 mr-2" />
-                  Live Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
-                    <div className="text-2xl font-bold text-white">{wpm}</div>
-                    <div className="text-white/70">WPM</div>
-                  </div>
-                  <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
-                    <div className="text-2xl font-bold text-white">{accuracy}%</div>
-                    <div className="text-white/70">Accuracy</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           )}
         </div>
 
@@ -306,7 +309,7 @@ const TypingInterface = () => {
           </CardHeader>
           <CardContent>
             <div className="text-lg leading-relaxed mb-6 font-mono bg-black/20 rounded-xl p-6 border border-white/10">
-              {sampleLyrics.split('').map((char, index) => (
+              {lyrics.split('').map((char, index) => (
                 <span key={index} className={`${getCharClassName(index)} transition-all duration-200 px-0.5 py-0.5 rounded`}>
                   {char}
                 </span>
