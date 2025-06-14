@@ -268,7 +268,7 @@ const Dashboard = () => {
     
     setIsLoading(true);
     
-    // Simulate API call with strict search logic
+    // Simulate API call with very strict search logic
     setTimeout(() => {
       const query = searchQuery.toLowerCase().trim();
       
@@ -282,14 +282,14 @@ const Dashboard = () => {
       
       const songsArray = Array.from(uniqueSongs.values());
       
-      // Strict search - only exact matches or clear partial matches
+      // Very strict search - only search in title, artist, and genre (NOT lyrics)
       const results = songsArray
         .filter(song => {
           const titleLower = song.title.toLowerCase();
           const artistLower = song.artist.toLowerCase();
           const genreLower = song.genre.toLowerCase();
           
-          // Only include if there's a meaningful match
+          // Only match if query appears in title, artist, or genre
           return titleLower.includes(query) || 
                  artistLower.includes(query) || 
                  genreLower.includes(query);
@@ -318,10 +318,12 @@ const Dashboard = () => {
         .slice(0, 12)
         .map(item => item.song);
       
+      console.log('Search query:', query);
+      console.log('Search results:', results);
       setSearchResults(results);
       setSelectedGenre('');
       setIsLoading(false);
-    }, 1000);
+    }, 500);
   };
 
   const handleGenreClick = (genreName: string) => {
