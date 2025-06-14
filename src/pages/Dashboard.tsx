@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Music, Headphones, Play, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -242,6 +241,24 @@ const Dashboard = () => {
     }
   ];
 
+  const allSongs = [
+    ...featuredSongs,
+    ...Object.values(topSongsByGenre).flat(),
+    ...topSongs,
+    // Add the Zayn song that should appear for "entertainer" search
+    {
+      id: 'zayn-entertainer',
+      title: "Entertainer",
+      artist: "Zayn",
+      genre: "Pop",
+      difficulty: "Medium",
+      duration: "3:23",
+      thumbnail: "https://img.youtube.com/vi/qaCkufLHHgk/maxresdefault.jpg",
+      videoId: "qaCkufLHHgk",
+      lyrics: "You got, you got the cinema. I could watch you forever. Action, thriller, I could watch you forever."
+    }
+  ];
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
@@ -250,9 +267,45 @@ const Dashboard = () => {
     }
     
     setIsLoading(true);
-    // Simulate API call - show top songs for search
+    
+    // Simulate API call with actual search logic
     setTimeout(() => {
-      setSearchResults(topSongs);
+      const query = searchQuery.toLowerCase().trim();
+      
+      // Remove duplicates by creating a Map with song id as key
+      const uniqueSongs = new Map();
+      allSongs.forEach(song => {
+        if (!uniqueSongs.has(song.id)) {
+          uniqueSongs.set(song.id, song);
+        }
+      });
+      
+      const songsArray = Array.from(uniqueSongs.values());
+      
+      // Search and prioritize results
+      const results = songsArray
+        .map(song => {
+          let score = 0;
+          const titleMatch = song.title.toLowerCase().includes(query);
+          const artistMatch = song.artist.toLowerCase().includes(query);
+          const genreMatch = song.genre.toLowerCase().includes(query);
+          
+          // Priority scoring: title match gets highest score
+          if (titleMatch) score += 100;
+          if (artistMatch) score += 50;
+          if (genreMatch) score += 25;
+          
+          // Exact title match gets even higher score
+          if (song.title.toLowerCase() === query) score += 200;
+          
+          return { song, score };
+        })
+        .filter(item => item.score > 0)  // Only include matches
+        .sort((a, b) => b.score - a.score)  // Sort by score descending
+        .slice(0, 12)  // Limit results
+        .map(item => item.song);
+      
+      setSearchResults(results);
       setSelectedGenre('');
       setIsLoading(false);
     }, 1000);
