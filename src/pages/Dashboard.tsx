@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, Music, Headphones, Play, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -268,7 +269,7 @@ const Dashboard = () => {
     
     setIsLoading(true);
     
-    // Simulate API call with actual search logic
+    // Simulate API call with improved search logic
     setTimeout(() => {
       const query = searchQuery.toLowerCase().trim();
       
@@ -282,21 +283,47 @@ const Dashboard = () => {
       
       const songsArray = Array.from(uniqueSongs.values());
       
-      // Search and prioritize results
+      // Search and prioritize results - only search in title, artist, and genre
       const results = songsArray
         .map(song => {
           let score = 0;
-          const titleMatch = song.title.toLowerCase().includes(query);
-          const artistMatch = song.artist.toLowerCase().includes(query);
-          const genreMatch = song.genre.toLowerCase().includes(query);
+          const titleLower = song.title.toLowerCase();
+          const artistLower = song.artist.toLowerCase();
+          const genreLower = song.genre.toLowerCase();
           
-          // Priority scoring: title match gets highest score
-          if (titleMatch) score += 100;
-          if (artistMatch) score += 50;
-          if (genreMatch) score += 25;
+          // Exact title match gets highest priority
+          if (titleLower === query) {
+            score += 1000;
+          }
+          // Title starts with query gets high priority
+          else if (titleLower.startsWith(query)) {
+            score += 500;
+          }
+          // Title contains query gets medium priority
+          else if (titleLower.includes(query)) {
+            score += 200;
+          }
           
-          // Exact title match gets even higher score
-          if (song.title.toLowerCase() === query) score += 200;
+          // Exact artist match
+          if (artistLower === query) {
+            score += 100;
+          }
+          // Artist starts with query
+          else if (artistLower.startsWith(query)) {
+            score += 80;
+          }
+          // Artist contains query
+          else if (artistLower.includes(query)) {
+            score += 50;
+          }
+          
+          // Genre matches
+          if (genreLower === query) {
+            score += 30;
+          }
+          else if (genreLower.includes(query)) {
+            score += 15;
+          }
           
           return { song, score };
         })
