@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState('');
   const navigate = useNavigate();
 
   const genres = [
@@ -30,7 +31,7 @@ const Dashboard = () => {
       genre: "Rock",
       difficulty: "Hard",
       duration: "5:55",
-      thumbnail: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
+      thumbnail: "https://img.youtube.com/vi/fJ9rUzIMcZQ/maxresdefault.jpg",
       videoId: "fJ9rUzIMcZQ",
       lyrics: "Is this the real life? Is this just fantasy? Caught in a landslide, no escape from reality. Open your eyes, look up to the skies and see. I'm just a poor boy, I need no sympathy. Because I'm easy come, easy go, little high, little low. Any way the wind blows doesn't really matter to me, to me."
     },
@@ -41,9 +42,9 @@ const Dashboard = () => {
       genre: "Pop",
       difficulty: "Easy",
       duration: "3:03",
-      thumbnail: "https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop",
+      thumbnail: "https://img.youtube.com/vi/YkgkThdzX-8/maxresdefault.jpg",
       videoId: "YkgkThdzX-8",
-      lyrics: "Imagine there's no heaven, it's easy if you try. No hell below us, above us only sky.Imagine all the people living for today."
+      lyrics: "Imagine there's no heaven, it's easy if you try. No hell below us, above us only sky. Imagine all the people living for today."
     },
     {
       id: 3,
@@ -52,7 +53,7 @@ const Dashboard = () => {
       genre: "Rock",
       difficulty: "Medium",
       duration: "6:30",
-      thumbnail: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=300&fit=crop",
+      thumbnail: "https://img.youtube.com/vi/BciS5krYL80/maxresdefault.jpg",
       videoId: "BciS5krYL80",
       lyrics: "On a dark desert highway, cool wind in my hair. Warm smell of colitas, rising up through the air. Up ahead in the distance, I saw a shimmering light. My head grew heavy and my sight grew dim, I had to stop for the night."
     },
@@ -63,15 +64,204 @@ const Dashboard = () => {
       genre: "Pop",
       difficulty: "Medium",
       duration: "4:54",
-      thumbnail: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
+      thumbnail: "https://img.youtube.com/vi/Zi_XLOBDo_Y/maxresdefault.jpg",
       videoId: "Zi_XLOBDo_Y",
       lyrics: "She was more like a beauty queen from a movie scene. I said don't mind, but what do you mean, I am the one. Who will dance on the floor in the round. She said I am the one, who will dance on the floor in the round."
     }
   ];
 
+  const topSongsByGenre = {
+    'Pop': [
+      {
+        id: 'pop-1',
+        title: "Shape of You",
+        artist: "Ed Sheeran",
+        genre: "Pop",
+        difficulty: "Easy",
+        duration: "3:53",
+        thumbnail: "https://img.youtube.com/vi/JGwWNGJdvx8/maxresdefault.jpg",
+        videoId: "JGwWNGJdvx8",
+        lyrics: "I'm in love with the shape of you. We push and pull like a magnet do. Although my heart is falling too. I'm in love with your body."
+      },
+      {
+        id: 'pop-2',
+        title: "Blinding Lights",
+        artist: "The Weeknd",
+        genre: "Pop",
+        difficulty: "Medium",
+        duration: "3:20",
+        thumbnail: "https://img.youtube.com/vi/4NRXx6U8ABQ/maxresdefault.jpg",
+        videoId: "4NRXx6U8ABQ",
+        lyrics: "I've been tryna call, I've been on my own for long enough. Maybe you can show me how to love, maybe. I feel like I'm just missing something when you're gone."
+      },
+      {
+        id: 'pop-3',
+        title: "Watermelon Sugar",
+        artist: "Harry Styles",
+        genre: "Pop",
+        difficulty: "Easy",
+        duration: "2:54",
+        thumbnail: "https://img.youtube.com/vi/E07s5ZYygMg/maxresdefault.jpg",
+        videoId: "E07s5ZYygMg",
+        lyrics: "Tastes like strawberries on a summer evenin'. And it sounds just like a song. I want more berries and that summer feelin'. It's so wonderful and warm."
+      }
+    ],
+    'Rock': [
+      {
+        id: 'rock-1',
+        title: "Sweet Child O' Mine",
+        artist: "Guns N' Roses",
+        genre: "Rock",
+        difficulty: "Hard",
+        duration: "5:03",
+        thumbnail: "https://img.youtube.com/vi/1w7OgIMMRc4/maxresdefault.jpg",
+        videoId: "1w7OgIMMRc4",
+        lyrics: "She's got a smile that it seems to me reminds me of childhood memories. Where everything was as fresh as the bright blue sky."
+      },
+      {
+        id: 'rock-2',
+        title: "Don't Stop Believin'",
+        artist: "Journey",
+        genre: "Rock",
+        difficulty: "Medium",
+        duration: "4:09",
+        thumbnail: "https://img.youtube.com/vi/1k8craCGpgs/maxresdefault.jpg",
+        videoId: "1k8craCGpgs",
+        lyrics: "Just a small town girl, livin' in a lonely world. She took the midnight train goin' anywhere. Just a city boy, born and raised in South Detroit."
+      }
+    ],
+    'Hip Hop': [
+      {
+        id: 'hiphop-1',
+        title: "God's Plan",
+        artist: "Drake",
+        genre: "Hip Hop",
+        difficulty: "Medium",
+        duration: "3:19",
+        thumbnail: "https://img.youtube.com/vi/xpVfcZ0ZcFM/maxresdefault.jpg",
+        videoId: "xpVfcZ0ZcFM",
+        lyrics: "And they wishin' and wishin' and wishin' and wishin'. They wishin' on me, yeah. I been movin' calm, don't start no trouble with me."
+      },
+      {
+        id: 'hiphop-2',
+        title: "HUMBLE.",
+        artist: "Kendrick Lamar",
+        genre: "Hip Hop",
+        difficulty: "Hard",
+        duration: "2:57",
+        thumbnail: "https://img.youtube.com/vi/tvTRZJ-4EyI/maxresdefault.jpg",
+        videoId: "tvTRZJ-4EyI",
+        lyrics: "Nobody pray for me, it's been that day for me. Way, yeah, way, yeah, way, yeah. I remember syrup sandwiches and crime allowances."
+      }
+    ],
+    'Classical': [
+      {
+        id: 'classical-1',
+        title: "Canon in D",
+        artist: "Pachelbel",
+        genre: "Classical",
+        difficulty: "Medium",
+        duration: "4:24",
+        thumbnail: "https://img.youtube.com/vi/NlprozGcs80/maxresdefault.jpg",
+        videoId: "NlprozGcs80",
+        lyrics: "Instrumental piece - focus on the melodic patterns and harmonies."
+      }
+    ],
+    'Jazz': [
+      {
+        id: 'jazz-1',
+        title: "Take Five",
+        artist: "Dave Brubeck",
+        genre: "Jazz",
+        difficulty: "Hard",
+        duration: "5:24",
+        thumbnail: "https://img.youtube.com/vi/vmDDOFXSgAs/maxresdefault.jpg",
+        videoId: "vmDDOFXSgAs",
+        lyrics: "Instrumental jazz piece in 5/4 time signature."
+      }
+    ],
+    'Electronic': [
+      {
+        id: 'electronic-1',
+        title: "Levels",
+        artist: "Avicii",
+        genre: "Electronic",
+        difficulty: "Medium",
+        duration: "3:18",
+        thumbnail: "https://img.youtube.com/vi/_ovdm2yX4MA/maxresdefault.jpg",
+        videoId: "_ovdm2yX4MA",
+        lyrics: "Sometimes I get a good feeling, Yeah. I get a feeling that I never never never never had before, no no."
+      }
+    ]
+  };
+
+  const topSongs = [
+    {
+      id: 'top-1',
+      title: "As It Was",
+      artist: "Harry Styles",
+      genre: "Pop",
+      difficulty: "Easy",
+      duration: "2:47",
+      thumbnail: "https://img.youtube.com/vi/H5v3kku4y6Q/maxresdefault.jpg",
+      videoId: "H5v3kku4y6Q",
+      lyrics: "Holdin' me back, gravity's holdin' me back. I want you to hold out the palm of your hand. Why don't we leave it at that? Nothin' to say when everything gets in the way."
+    },
+    {
+      id: 'top-2',
+      title: "Anti-Hero",
+      artist: "Taylor Swift",
+      genre: "Pop",
+      difficulty: "Medium",
+      duration: "3:20",
+      thumbnail: "https://img.youtube.com/vi/b1kbLWvqugk/maxresdefault.jpg",
+      videoId: "b1kbLWvqugk",
+      lyrics: "I have this thing where I get older but just never wiser. Midnights become my afternoons. When my depression works the graveyard shift, all of the people I've ghosted stand there in the room."
+    },
+    {
+      id: 'top-3',
+      title: "Bad Habit",
+      artist: "Steve Lacy",
+      genre: "Pop",
+      difficulty: "Easy",
+      duration: "3:51",
+      thumbnail: "https://img.youtube.com/vi/VF-r5TtlT9w/maxresdefault.jpg",
+      videoId: "VF-r5TtlT9w",
+      lyrics: "I wish I knew you wanted me. I wish I knew, I wish I knew you wanted me. I wish I knew, I wish I knew you wanted me."
+    },
+    {
+      id: 'top-4',
+      title: "Heat Wave",
+      artist: "Glass Animals",
+      genre: "Electronic",
+      difficulty: "Medium",
+      duration: "3:58",
+      thumbnail: "https://img.youtube.com/vi/mRD0-GxqHVo/maxresdefault.jpg",
+      videoId: "mRD0-GxqHVo",
+      lyrics: "Sometimes all I think about is you. Late nights in the middle of June. Heat waves been fakin' me out, can't make you happier now."
+    }
+  ];
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    searchYouTube(searchQuery);
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    setIsLoading(true);
+    // Simulate API call - show top songs for search
+    setTimeout(() => {
+      setSearchResults(topSongs);
+      setSelectedGenre('');
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleGenreClick = (genreName: string) => {
+    setSelectedGenre(genreName);
+    setSearchResults([]);
+    setSearchQuery('');
   };
 
   const handleSongSelect = (song: any) => {
@@ -91,98 +281,19 @@ const Dashboard = () => {
     }
   };
 
-  const searchYouTube = async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // In a real app, you would make an API call to YouTube Data API v3
-      // For now, using an expanded mock response with more videos
-      const mockResults = [
-        {
-          id: `search-${Date.now()}-1`,
-          title: `${query} - Official Music Video`,
-          artist: "Various Artists",
-          genre: "Pop",
-          difficulty: "Medium",
-          duration: "3:45",
-          thumbnail: `https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&q=80`,
-          videoId: "dQw4w9WgXcQ",
-          lyrics: "Never gonna give you up, never gonna let you down. Never gonna run around and desert you. Never gonna make you cry, never gonna say goodbye. Never gonna tell a lie and hurt you."
-        },
-        {
-          id: `search-${Date.now()}-2`,
-          title: `${query} (Lyrics)`,
-          artist: "Lyric Channel",
-          genre: "Pop",
-          difficulty: "Easy",
-          duration: "4:12",
-          thumbnail: `https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop&q=80`,
-          videoId: "L_jWHffIx5E",
-          lyrics: "Somebody once told me the world is gonna roll me. I ain't the sharpest tool in the shed. She was looking kind of dumb with her finger and her thumb in the shape of an 'L' on her forehead."
-        },
-        {
-          id: `search-${Date.now()}-3`,
-          title: `${query} - Live Performance`,
-          artist: "Live Music",
-          genre: "Rock",
-          difficulty: "Medium",
-          duration: "5:20",
-          thumbnail: `https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=300&fit=crop&q=80`,
-          videoId: "kJQP7kiw5Fk",
-          lyrics: "Despacito, Quiero respirar tu cuello despacito. Deja que te diga cosas al oído. Para que te acuerdes si no estás conmigo."
-        },
-        {
-          id: `search-${Date.now()}-4`,
-          title: `${query} - Cover Version`,
-          artist: "Cover Artist",
-          genre: "Pop",
-          difficulty: "Hard",
-          duration: "3:30",
-          thumbnail: `https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop&q=80`,
-          videoId: "9bZkp7q19f0",
-          lyrics: "Oppa Gangnam Style, Gangnam Style. Najeneun danshin naja ittaegeuriya. Keopi sikgido jeone one-shot deo hage. Yeoreum boda deo deoun one-shot."
-        },
-        {
-          id: `search-${Date.now()}-5`,
-          title: `${query} - Acoustic Version`,
-          artist: "Acoustic Channel",
-          genre: "Folk",
-          difficulty: "Easy",
-          duration: "4:05",
-          thumbnail: `https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&q=80`,
-          videoId: "JGwWNGJdvx8",
-          lyrics: "I'm in love with the shape of you. We push and pull like a magnet do. Although my heart is falling too. I'm in love with your body."
-        },
-        {
-          id: `search-${Date.now()}-6`,
-          title: `${query} - Remix`,
-          artist: "DJ Remix",
-          genre: "Electronic",
-          difficulty: "Medium",
-          duration: "6:15",
-          thumbnail: `https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=400&h=300&fit=crop&q=80`,
-          videoId: "y6120QOlsfU",
-          lyrics: "Darude - Sandstorm instrumental"
-        }
-      ];
-
-      // Simulate API call delay
-      setTimeout(() => {
-        setSearchResults(mockResults);
-        setIsLoading(false);
-      }, 1000);
-    } catch (error) {
-      console.error("Error fetching YouTube data:", error);
-      setIsLoading(false);
-    }
+  const getDisplaySongs = () => {
+    if (searchResults.length > 0) return searchResults;
+    if (selectedGenre && topSongsByGenre[selectedGenre]) return topSongsByGenre[selectedGenre];
+    return featuredSongs;
   };
 
-  const displaySongs = searchResults.length > 0 ? searchResults : featuredSongs;
+  const getSectionTitle = () => {
+    if (searchResults.length > 0) return 'Top Songs';
+    if (selectedGenre) return `Top ${selectedGenre} Songs`;
+    return 'Featured Songs';
+  };
+
+  const displaySongs = getDisplaySongs();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -234,7 +345,13 @@ const Dashboard = () => {
           <h3 className="text-2xl font-bold text-white mb-6">Choose Your Genre</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {genres.map((genre) => (
-              <Card key={genre.name} className="bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer backdrop-blur-sm hover:scale-105">
+              <Card 
+                key={genre.name} 
+                className={`bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer backdrop-blur-sm hover:scale-105 ${
+                  selectedGenre === genre.name ? 'ring-2 ring-purple-400 bg-white/20' : ''
+                }`}
+                onClick={() => handleGenreClick(genre.name)}
+              >
                 <CardContent className="p-6 text-center">
                   <div className={`w-12 h-12 ${genre.color} rounded-full flex items-center justify-center mx-auto mb-3`}>
                     <span className="text-2xl">{genre.icon}</span>
@@ -249,12 +366,12 @@ const Dashboard = () => {
         {/* Songs Section */}
         <div>
           <h3 className="text-2xl font-bold text-white mb-6">
-            {searchResults.length > 0 ? 'Search Results' : 'Featured Songs'}
+            {getSectionTitle()}
           </h3>
           {isLoading ? (
             <div className="flex justify-center items-center h-40">
               <Loader2 className="w-8 h-8 text-white animate-spin" />
-              <span className="ml-2 text-white">Searching...</span>
+              <span className="ml-2 text-white">Loading...</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
