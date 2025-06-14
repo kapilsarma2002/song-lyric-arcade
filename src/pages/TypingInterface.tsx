@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, Pause, RotateCcw, Volume2, Award, Clock, Target, Zap } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RotateCcw, Volume2, Award, Clock, Target, Zap, TrendingUp, Activity, Percent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -20,9 +20,14 @@ const TypingInterface = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [errors, setErrors] = useState(0);
+  const [correctChars, setCorrectChars] = useState(0);
+  const [totalKeystrokes, setTotalKeystrokes] = useState(0);
+  const [currentWpmBuffer, setCurrentWpmBuffer] = useState<number[]>([]);
+  const [peakWpm, setPeakWpm] = useState(0);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<number>();
+  const wpmCalculationRef = useRef<number>();
 
   // Get lyrics from the song data, or use a default if not available
   const lyrics = song?.lyrics || "No lyrics available for this song. Please choose another song.";
@@ -35,9 +40,26 @@ const TypingInterface = () => {
       timerRef.current = window.setInterval(() => {
         setTimeElapsed(prev => prev + 1);
       }, 1000);
+      
+      // Calculate WPM every second for real-time tracking
+      wpmCalculationRef.current = window.setInterval(() => {
+        const wordsTyped = correctChars / 5;
+        const minutes = timeElapsed / 60;
+        const currentWpm = minutes > 0 ? Math.round(wordsTyped / minutes) : 0;
+        
+        setCurrentWpmBuffer(prev => {
+          const newBuffer = [...prev, currentWpm].slice(-10); // Keep last 10 readings
+          const maxWpm = Math.max(...newBuffer, peakWpm);
+          setPeakWpm(maxWpm);
+          return newBuffer;
+        });
+      }, 1000);
     } else {
       if (timerRef.current) {
         clearInterval(timerRef.current);
+      }
+      if (wpmCalculationRef.current) {
+        clearInterval(wpmCalculationRef.current);
       }
     }
 
@@ -45,13 +67,18 @@ const TypingInterface = () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      if (wpmCalculationRef.current) {
+        clearInterval(wpmCalculationRef.current);
+      }
     };
-  }, [isPlaying]);
+  }, [isPlaying, timeElapsed, correctChars, peakWpm]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const currentChar = lyrics[currentCharIndex];
     const typedChar = value[value.length - 1];
+
+    setTotalKeystrokes(prev => prev + 1);
 
     if (value.length > typedText.length) {
       // User typed a new character
@@ -59,6 +86,7 @@ const TypingInterface = () => {
         // Correct character
         setCurrentCharIndex(prev => prev + 1);
         setTypedText(value);
+        setCorrectChars(prev => prev + 1);
         
         // Check if completed
         if (currentCharIndex + 1 >= lyrics.length) {
@@ -75,6 +103,9 @@ const TypingInterface = () => {
       // User deleted a character
       setCurrentCharIndex(Math.max(0, currentCharIndex - 1));
       setTypedText(value);
+      if (correctChars > 0) {
+        setCorrectChars(prev => prev - 1);
+      }
     }
 
     // Calculate progress
@@ -82,13 +113,12 @@ const TypingInterface = () => {
     setProgress(newProgress);
     
     // Calculate WPM (assuming average word length of 5 characters)
-    const wordsTyped = (currentCharIndex + 1) / 5;
+    const wordsTyped = correctChars / 5;
     const minutes = timeElapsed / 60;
     setWpm(minutes > 0 ? Math.round(wordsTyped / minutes) : 0);
 
     // Calculate accuracy
-    const totalAttempts = currentCharIndex + 1 + errors;
-    setAccuracy(totalAttempts > 0 ? Math.round(((currentCharIndex + 1) / totalAttempts) * 100) : 100);
+    setAccuracy(totalKeystrokes > 0 ? Math.round((correctChars / totalKeystrokes) * 100) : 100);
   };
 
   const togglePlayPause = () => {
@@ -105,6 +135,10 @@ const TypingInterface = () => {
     setIsPlaying(false);
     setIsCompleted(false);
     setErrors(0);
+    setCorrectChars(0);
+    setTotalKeystrokes(0);
+    setCurrentWpmBuffer([]);
+    setPeakWpm(0);
   };
 
   const getCharClassName = (index: number) => {
@@ -117,6 +151,19 @@ const TypingInterface = () => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getAverageWpm = () => {
+    if (currentWpmBuffer.length === 0) return wpm;
+    return Math.round(currentWpmBuffer.reduce((sum, wpm) => sum + wpm, 0) / currentWpmBuffer.length);
+  };
+
+  const getConsistencyScore = () => {
+    if (currentWpmBuffer.length < 2) return 100;
+    const avg = getAverageWpm();
+    const variance = currentWpmBuffer.reduce((sum, wpm) => sum + Math.pow(wpm - avg, 2), 0) / currentWpmBuffer.length;
+    const stdDev = Math.sqrt(variance);
+    return Math.max(0, Math.round(100 - (stdDev / avg) * 100));
   };
 
   if (!song) {
@@ -142,7 +189,6 @@ const TypingInterface = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      {/* Header */}
       <div className="relative z-10 bg-black/30 backdrop-blur-md border-b border-white/20">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -228,32 +274,49 @@ const TypingInterface = () => {
             </CardContent>
           </Card>
 
-          {/* Show YouTube video in both spots when not completed */}
-          {!isCompleted && (
+          {/* Live Stats or Completion Stats */}
+          {!isCompleted ? (
             <Card className="bg-white/10 border-white/20 backdrop-blur-md shadow-2xl">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
-                  <Zap className="w-5 h-5 mr-2" />
-                  Live Stats
+                  <Activity className="w-5 h-5 mr-2" />
+                  Live Performance
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
-                    <div className="text-2xl font-bold text-white">{wpm}</div>
-                    <div className="text-white/70">WPM</div>
+                    <div className="text-2xl font-bold text-green-400 flex items-center justify-center">
+                      <Zap className="w-6 h-6 mr-1" />
+                      {wpm}
+                    </div>
+                    <div className="text-white/70 text-sm">Current WPM</div>
                   </div>
                   <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
-                    <div className="text-2xl font-bold text-white">{accuracy}%</div>
-                    <div className="text-white/70">Accuracy</div>
+                    <div className="text-2xl font-bold text-blue-400 flex items-center justify-center">
+                      <Target className="w-6 h-6 mr-1" />
+                      {accuracy}%
+                    </div>
+                    <div className="text-white/70 text-sm">Accuracy</div>
+                  </div>
+                  <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="text-2xl font-bold text-orange-400 flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 mr-1" />
+                      {peakWpm}
+                    </div>
+                    <div className="text-white/70 text-sm">Peak WPM</div>
+                  </div>
+                  <div className="text-center bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="text-2xl font-bold text-purple-400 flex items-center justify-center">
+                      <Percent className="w-6 h-6 mr-1" />
+                      {getConsistencyScore()}%
+                    </div>
+                    <div className="text-white/70 text-sm">Consistency</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          )}
-
-          {/* Show Analytics only when completed */}
-          {isCompleted && (
+          ) : (
             <Card className="bg-gradient-to-br from-green-500/20 to-blue-500/20 border-green-400/30 backdrop-blur-md shadow-2xl">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
@@ -262,31 +325,45 @@ const TypingInterface = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="text-center bg-white/10 rounded-xl p-4">
-                    <div className="text-3xl font-bold text-green-400 flex items-center justify-center">
-                      <Zap className="w-8 h-8 mr-2" />
-                      {wpm}
+                    <div className="text-2xl font-bold text-green-400 flex items-center justify-center">
+                      <Zap className="w-6 h-6 mr-1" />
+                      {getAverageWpm()}
                     </div>
-                    <div className="text-white/70">WPM</div>
+                    <div className="text-white/70 text-sm">Avg WPM</div>
                   </div>
                   <div className="text-center bg-white/10 rounded-xl p-4">
-                    <div className="text-3xl font-bold text-blue-400 flex items-center justify-center">
-                      <Target className="w-8 h-8 mr-2" />
+                    <div className="text-2xl font-bold text-blue-400 flex items-center justify-center">
+                      <Target className="w-6 h-6 mr-1" />
                       {accuracy}%
                     </div>
-                    <div className="text-white/70">Accuracy</div>
+                    <div className="text-white/70 text-sm">Accuracy</div>
                   </div>
                   <div className="text-center bg-white/10 rounded-xl p-4">
-                    <div className="text-3xl font-bold text-purple-400 flex items-center justify-center">
-                      <Clock className="w-8 h-8 mr-2" />
+                    <div className="text-2xl font-bold text-orange-400 flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 mr-1" />
+                      {peakWpm}
+                    </div>
+                    <div className="text-white/70 text-sm">Peak WPM</div>
+                  </div>
+                  <div className="text-center bg-white/10 rounded-xl p-4">
+                    <div className="text-2xl font-bold text-purple-400 flex items-center justify-center">
+                      <Percent className="w-6 h-6 mr-1" />
+                      {getConsistencyScore()}%
+                    </div>
+                    <div className="text-white/70 text-sm">Consistency</div>
+                  </div>
+                  <div className="text-center bg-white/10 rounded-xl p-4">
+                    <div className="text-2xl font-bold text-yellow-400 flex items-center justify-center">
+                      <Clock className="w-6 h-6 mr-1" />
                       {formatTime(timeElapsed)}
                     </div>
-                    <div className="text-white/70">Time</div>
+                    <div className="text-white/70 text-sm">Time</div>
                   </div>
                   <div className="text-center bg-white/10 rounded-xl p-4">
-                    <div className="text-3xl font-bold text-red-400">{errors}</div>
-                    <div className="text-white/70">Errors</div>
+                    <div className="text-2xl font-bold text-red-400">{errors}</div>
+                    <div className="text-white/70 text-sm">Errors</div>
                   </div>
                 </div>
                 <div className="mt-6 text-center">
@@ -318,7 +395,6 @@ const TypingInterface = () => {
           </CardContent>
         </Card>
 
-        {/* Typing Input */}
         <Card className="bg-white/10 border-white/20 backdrop-blur-md shadow-2xl">
           <CardHeader>
             <CardTitle className="text-white">Type Here</CardTitle>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Music, Headphones, Play, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -269,7 +268,7 @@ const Dashboard = () => {
     
     setIsLoading(true);
     
-    // Simulate API call with improved search logic
+    // Simulate API call with strict search logic
     setTimeout(() => {
       const query = searchQuery.toLowerCase().trim();
       
@@ -283,53 +282,40 @@ const Dashboard = () => {
       
       const songsArray = Array.from(uniqueSongs.values());
       
-      // Search and prioritize results - only search in title, artist, and genre
+      // Strict search - only exact matches or clear partial matches
       const results = songsArray
+        .filter(song => {
+          const titleLower = song.title.toLowerCase();
+          const artistLower = song.artist.toLowerCase();
+          const genreLower = song.genre.toLowerCase();
+          
+          // Only include if there's a meaningful match
+          return titleLower.includes(query) || 
+                 artistLower.includes(query) || 
+                 genreLower.includes(query);
+        })
         .map(song => {
           let score = 0;
           const titleLower = song.title.toLowerCase();
           const artistLower = song.artist.toLowerCase();
           const genreLower = song.genre.toLowerCase();
           
-          // Exact title match gets highest priority
-          if (titleLower === query) {
-            score += 1000;
-          }
-          // Title starts with query gets high priority
-          else if (titleLower.startsWith(query)) {
-            score += 500;
-          }
-          // Title contains query gets medium priority
-          else if (titleLower.includes(query)) {
-            score += 200;
-          }
+          // Exact matches get highest priority
+          if (titleLower === query) score += 1000;
+          else if (titleLower.startsWith(query)) score += 500;
+          else if (titleLower.includes(query)) score += 200;
           
-          // Exact artist match
-          if (artistLower === query) {
-            score += 100;
-          }
-          // Artist starts with query
-          else if (artistLower.startsWith(query)) {
-            score += 80;
-          }
-          // Artist contains query
-          else if (artistLower.includes(query)) {
-            score += 50;
-          }
+          if (artistLower === query) score += 100;
+          else if (artistLower.startsWith(query)) score += 80;
+          else if (artistLower.includes(query)) score += 50;
           
-          // Genre matches
-          if (genreLower === query) {
-            score += 30;
-          }
-          else if (genreLower.includes(query)) {
-            score += 15;
-          }
+          if (genreLower === query) score += 30;
+          else if (genreLower.includes(query)) score += 15;
           
           return { song, score };
         })
-        .filter(item => item.score > 0)  // Only include matches
-        .sort((a, b) => b.score - a.score)  // Sort by score descending
-        .slice(0, 12)  // Limit results
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 12)
         .map(item => item.song);
       
       setSearchResults(results);
